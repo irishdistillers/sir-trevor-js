@@ -81,7 +81,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	module.exports = __webpack_require__(1);
 
-	__webpack_require__(281);
+	__webpack_require__(282);
 
 /***/ }),
 /* 1 */
@@ -129,11 +129,11 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	  Blocks: __webpack_require__(243),
 
-	  FormatBar: __webpack_require__(270),
-	  Editor: __webpack_require__(272),
+	  FormatBar: __webpack_require__(271),
+	  Editor: __webpack_require__(273),
 
-	  toMarkdown: __webpack_require__(280),
-	  toHTML: __webpack_require__(254),
+	  toMarkdown: __webpack_require__(281),
+	  toHTML: __webpack_require__(255),
 
 	  setDefaults: function setDefaults(options) {
 	    _Object$assign(SirTrevor.config.defaults, options || {});
@@ -164,7 +164,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	};
 
-	_Object$assign(SirTrevor, __webpack_require__(273));
+	_Object$assign(SirTrevor, __webpack_require__(274));
 
 	module.exports = SirTrevor;
 
@@ -18379,7 +18379,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  this.initialize();
 	};
 
-	_Object$assign(BlockManager.prototype, __webpack_require__(236), __webpack_require__(269), __webpack_require__(74), {
+	_Object$assign(BlockManager.prototype, __webpack_require__(236), __webpack_require__(270), __webpack_require__(74), {
 
 	  eventNamespace: 'block',
 
@@ -18680,12 +18680,12 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	module.exports = {
 	  Text: __webpack_require__(244),
-	  Quote: __webpack_require__(262),
-	  Image: __webpack_require__(263),
-	  Heading: __webpack_require__(264),
-	  List: __webpack_require__(265),
-	  Tweet: __webpack_require__(267),
-	  Video: __webpack_require__(268)
+	  Quote: __webpack_require__(263),
+	  Image: __webpack_require__(264),
+	  Heading: __webpack_require__(265),
+	  List: __webpack_require__(266),
+	  Tweet: __webpack_require__(268),
+	  Video: __webpack_require__(269)
 	};
 
 /***/ }),
@@ -18699,12 +18699,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	*/
 
 	var Block = __webpack_require__(245);
-	var stToHTML = __webpack_require__(254);
+	var stToHTML = __webpack_require__(255);
 
-	var ScribeTextBlockPlugin = __webpack_require__(255);
-	var ScribePastePlugin = __webpack_require__(259);
-	var ScribeHeadingPlugin = __webpack_require__(260);
-	var ScribeQuotePlugin = __webpack_require__(261);
+	var ScribeTextBlockPlugin = __webpack_require__(256);
+	var ScribePastePlugin = __webpack_require__(260);
+	var ScribeHeadingPlugin = __webpack_require__(261);
+	var ScribeQuotePlugin = __webpack_require__(262);
 
 	module.exports = Block.extend({
 
@@ -18783,6 +18783,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var Spinner = __webpack_require__(252);
 
 	var DELETE_TEMPLATE = __webpack_require__(253);
+	var BLOCK_DESCRIPTION_TEMPLATE = __webpack_require__(254);
 
 	var Block = function Block(data, instance_id, mediator, options) {
 	  SimpleBlock.apply(this, arguments);
@@ -18855,6 +18856,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  render: function render() {
 	    this.beforeBlockRender();
 	    this._setBlockInner();
+	    this._setBlockDescription();
 
 	    this.editor = this.inner.children[0];
 
@@ -18892,6 +18894,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	    this._blockPrepare();
 
 	    return this;
+	  },
+
+	  _setBlockDescription: function _setBlockDescription() {
+	    this.el.insertAdjacentHTML("beforeend", BLOCK_DESCRIPTION_TEMPLATE(this));
 	  },
 
 	  remove: function remove() {
@@ -19884,6 +19890,18 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	"use strict";
 
+	var config = __webpack_require__(69);
+
+	module.exports = function (block) {
+	  return "\n    <div class=\"st-block-description\" data-type=\"" + block.type + "\">\n      <svg role=\"img\" class=\"st-icon\">\n        <use xlink:href=\"" + config.defaults.iconUrl + "#" + block.icon_name + "\"/>\n      </svg>\n      " + block.title() + "\n    </div>\n  ";
+	};
+
+/***/ }),
+/* 255 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	"use strict";
+
 	var _ = __webpack_require__(35);
 	var utils = __webpack_require__(30);
 
@@ -19951,12 +19969,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ }),
-/* 255 */
+/* 256 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
 
-	var _Array$from = __webpack_require__(256)['default'];
+	var _Array$from = __webpack_require__(257)['default'];
 
 	var selectionRange = __webpack_require__(231);
 
@@ -20128,21 +20146,21 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = ScribeTextBlockPlugin;
 
 /***/ }),
-/* 256 */
-/***/ (function(module, exports, __webpack_require__) {
-
-	module.exports = { "default": __webpack_require__(257), __esModule: true };
-
-/***/ }),
 /* 257 */
 /***/ (function(module, exports, __webpack_require__) {
 
-	__webpack_require__(87);
-	__webpack_require__(258);
-	module.exports = __webpack_require__(7).Array.from;
+	module.exports = { "default": __webpack_require__(258), __esModule: true };
 
 /***/ }),
 /* 258 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	__webpack_require__(87);
+	__webpack_require__(259);
+	module.exports = __webpack_require__(7).Array.from;
+
+/***/ }),
+/* 259 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -20184,7 +20202,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ }),
-/* 259 */
+/* 260 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -20194,7 +20212,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	paragraph that has been added.
 	*/
 
-	var _Array$from = __webpack_require__(256)['default'];
+	var _Array$from = __webpack_require__(257)['default'];
 
 	var scribePastePlugin = function scribePastePlugin(block) {
 	  return function (scribe) {
@@ -20232,7 +20250,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = scribePastePlugin;
 
 /***/ }),
-/* 260 */
+/* 261 */
 /***/ (function(module, exports) {
 
 	"use strict";
@@ -20268,7 +20286,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = scribeHeadingPlugin;
 
 /***/ }),
-/* 261 */
+/* 262 */
 /***/ (function(module, exports) {
 
 	"use strict";
@@ -20304,7 +20322,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = scribeQuotePlugin;
 
 /***/ }),
-/* 262 */
+/* 263 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -20316,9 +20334,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	var _ = __webpack_require__(35);
 
 	var Block = __webpack_require__(245);
-	var stToHTML = __webpack_require__(254);
-	var ScribeHeadingPlugin = __webpack_require__(260);
-	var ScribeQuotePlugin = __webpack_require__(261);
+	var stToHTML = __webpack_require__(255);
+	var ScribeHeadingPlugin = __webpack_require__(261);
+	var ScribeQuotePlugin = __webpack_require__(262);
 
 	var template = _.template(['<blockquote class="st-required st-text-block st-text-block--quote" contenteditable="true"></blockquote>', '<label class="st-input-label"> <%= i18n.t("blocks:quote:credit_field") %></label>', '<input maxlength="140" name="cite" placeholder="<%= i18n.t("blocks:quote:credit_field") %>"', ' class="st-input-string js-cite-input" type="text" />'].join("\n"));
 
@@ -20354,7 +20372,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	});
 
 /***/ }),
-/* 263 */
+/* 264 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -20402,7 +20420,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	});
 
 /***/ }),
-/* 264 */
+/* 265 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -20412,11 +20430,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	*/
 
 	var Block = __webpack_require__(245);
-	var stToHTML = __webpack_require__(254);
+	var stToHTML = __webpack_require__(255);
 
-	var ScribeTextBlockPlugin = __webpack_require__(255);
-	var ScribeHeadingPlugin = __webpack_require__(260);
-	var ScribeQuotePlugin = __webpack_require__(261);
+	var ScribeTextBlockPlugin = __webpack_require__(256);
+	var ScribeHeadingPlugin = __webpack_require__(261);
+	var ScribeQuotePlugin = __webpack_require__(262);
 
 	module.exports = Block.extend({
 
@@ -20462,15 +20480,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	});
 
 /***/ }),
-/* 265 */
+/* 266 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
 
 	var Block = __webpack_require__(245);
-	var stToHTML = __webpack_require__(254);
+	var stToHTML = __webpack_require__(255);
 
-	var ScribeListBlockPlugin = __webpack_require__(266);
+	var ScribeListBlockPlugin = __webpack_require__(267);
 
 	module.exports = Block.extend({
 	  type: 'list',
@@ -20656,7 +20674,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	});
 
 /***/ }),
-/* 266 */
+/* 267 */
 /***/ (function(module, exports) {
 
 	"use strict";
@@ -20722,7 +20740,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = ScribeListBlockPlugin;
 
 /***/ }),
-/* 267 */
+/* 268 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -20825,7 +20843,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	});
 
 /***/ }),
-/* 268 */
+/* 269 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -20910,7 +20928,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	});
 
 /***/ }),
-/* 269 */
+/* 270 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -20930,7 +20948,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ }),
-/* 270 */
+/* 271 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -20950,7 +20968,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var Dom = __webpack_require__(70);
 	var Events = __webpack_require__(132);
 
-	var FORMAT_BUTTON_TEMPLATE = __webpack_require__(271);
+	var FORMAT_BUTTON_TEMPLATE = __webpack_require__(272);
 
 	var FormatBar = function FormatBar(options, mediator, editor) {
 	  this.editor = editor;
@@ -20966,7 +20984,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  this.initialize.apply(this, arguments);
 	};
 
-	_Object$assign(FormatBar.prototype, __webpack_require__(236), __webpack_require__(269), __webpack_require__(74), __webpack_require__(237), {
+	_Object$assign(FormatBar.prototype, __webpack_require__(236), __webpack_require__(270), __webpack_require__(74), __webpack_require__(237), {
 
 	  className: 'st-format-bar',
 
@@ -21077,7 +21095,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = FormatBar;
 
 /***/ }),
-/* 271 */
+/* 272 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -21094,7 +21112,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ }),
-/* 272 */
+/* 273 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -21118,14 +21136,14 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var Events = __webpack_require__(74);
 	var EventBus = __webpack_require__(76);
-	var FormEvents = __webpack_require__(273);
-	var BlockControls = __webpack_require__(274);
-	var BlockAddition = __webpack_require__(276);
-	var BlockAdditionTop = __webpack_require__(278);
+	var FormEvents = __webpack_require__(274);
+	var BlockControls = __webpack_require__(275);
+	var BlockAddition = __webpack_require__(277);
+	var BlockAdditionTop = __webpack_require__(279);
 	var BlockManager = __webpack_require__(242);
-	var FormatBar = __webpack_require__(270);
+	var FormatBar = __webpack_require__(271);
 	var EditorStore = __webpack_require__(77);
-	var ErrorHandler = __webpack_require__(279);
+	var ErrorHandler = __webpack_require__(280);
 
 	var Editor = function Editor(options) {
 	  this.initialize(options);
@@ -21462,7 +21480,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = Editor;
 
 /***/ }),
-/* 273 */
+/* 274 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -21512,7 +21530,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = FormEvents;
 
 /***/ }),
-/* 274 */
+/* 275 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -21526,7 +21544,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var Blocks = __webpack_require__(243);
 	var Events = __webpack_require__(132);
 
-	var BLOCK_REPLACER_CONTROL_TEMPLATE = __webpack_require__(275);
+	var BLOCK_REPLACER_CONTROL_TEMPLATE = __webpack_require__(276);
 
 	function generateBlocksHTML(Blocks, availableTypes) {
 	  return availableTypes.reduce(function (memo, type) {
@@ -21596,7 +21614,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ }),
-/* 275 */
+/* 276 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -21608,7 +21626,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ }),
-/* 276 */
+/* 277 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -21626,7 +21644,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var Dom = __webpack_require__(70);
 	var Events = __webpack_require__(132);
 
-	var TOP_CONTROLS_TEMPLATE = __webpack_require__(277);
+	var TOP_CONTROLS_TEMPLATE = __webpack_require__(278);
 
 	module.exports.create = function (SirTrevor) {
 
@@ -21671,7 +21689,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ }),
-/* 277 */
+/* 278 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -21683,7 +21701,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ }),
-/* 278 */
+/* 279 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -21720,7 +21738,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ }),
-/* 279 */
+/* 280 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -21748,7 +21766,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  this.initialize();
 	};
 
-	_Object$assign(ErrorHandler.prototype, __webpack_require__(236), __webpack_require__(269), __webpack_require__(237), {
+	_Object$assign(ErrorHandler.prototype, __webpack_require__(236), __webpack_require__(270), __webpack_require__(237), {
 
 	  errors: [],
 	  className: "st-errors",
@@ -21802,7 +21820,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = ErrorHandler;
 
 /***/ }),
-/* 280 */
+/* 281 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -21893,7 +21911,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ }),
-/* 281 */
+/* 282 */
 17
 /******/ ])))
 });
