@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "es5-shim": "^4.0.3",
+    "jasmine-core": "^2.8.0",
     "svg4everybody": "^2.0.3"
   },
   "devDependencies": {
@@ -36,14 +37,14 @@
     "grunt-contrib-uglify": "^0.6.0",
     "grunt-contrib-watch": "^0.3.1",
     "grunt-jasmine-nodejs": "^1.4.2",
-    "grunt-karma": "^0.9.0",
+    "grunt-karma": "^0.12.2",
     "grunt-webpack": "^1.0.8",
     "jsonp-promise": "^0.1.2",
-    "karma": "~0.12.28",
+    "karma": "^1.7.1",
     "karma-chrome-launcher": "^0.1.7",
     "karma-firefox-launcher": "^0.1.4",
     "karma-jasmine": "^0.3.6",
-    "karma-webpack": "1.6.0",
+    "karma-webpack": "^2.0.5",
     "lodash": "^2.4.1",
     "lodash.isempty": "^2.4.1",
     "lodash.isfunction": "^2.4.1",
@@ -66,7 +67,7 @@
     "spin.js": "^2.0.1",
     "style-loader": "^0.12.3",
     "url-loader": "^0.5.7",
-    "webpack": "^1.8.4",
+    "webpack": "^1.15.0",
     "webpack-config-merger": "0.0.3",
     "webpack-dev-server": "^1.10.1",
     "whatwg-fetch": "^0.9.0"
