@@ -470,6 +470,7 @@ return /******/ (function(modules) { // webpackBootstrap
 		return ctor && ctor.prototype === o;
 	};
 	var excludedKeys = {
+		$applicationCache: true,
 		$console: true,
 		$external: true,
 		$frame: true,
@@ -571,7 +572,7 @@ return /******/ (function(modules) { // webpackBootstrap
 			}(1, 2));
 			if (!keysWorksWithArguments) {
 				var originalKeys = Object.keys;
-				Object.keys = function keys(object) {
+				Object.keys = function keys(object) { // eslint-disable-line func-name-matching
 					if (isArgs(object)) {
 						return originalKeys(slice.call(object));
 					} else {
