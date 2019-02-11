@@ -1861,15 +1861,18 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
+	/* WEBPACK VAR INJECTION */(function(global) {var scope = (typeof global !== "undefined" && global) ||
+	            (typeof self !== "undefined" && self) ||
+	            window;
 	var apply = Function.prototype.apply;
 
 	// DOM APIs, for completeness
 
 	exports.setTimeout = function() {
-	  return new Timeout(apply.call(setTimeout, window, arguments), clearTimeout);
+	  return new Timeout(apply.call(setTimeout, scope, arguments), clearTimeout);
 	};
 	exports.setInterval = function() {
-	  return new Timeout(apply.call(setInterval, window, arguments), clearInterval);
+	  return new Timeout(apply.call(setInterval, scope, arguments), clearInterval);
 	};
 	exports.clearTimeout =
 	exports.clearInterval = function(timeout) {
@@ -1884,7 +1887,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 	Timeout.prototype.unref = Timeout.prototype.ref = function() {};
 	Timeout.prototype.close = function() {
-	  this._clearFn.call(window, this._id);
+	  this._clearFn.call(scope, this._id);
 	};
 
 	// Does not start the time, just sets up the members needed.
@@ -1912,9 +1915,17 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	// setimmediate attaches itself to the global object
 	__webpack_require__(26);
-	exports.setImmediate = setImmediate;
-	exports.clearImmediate = clearImmediate;
+	// On some exotic environments, it's not clear which object `setimmediate` was
+	// able to install onto.  Search each possibility in the same order as the
+	// `setimmediate` library.
+	exports.setImmediate = (typeof self !== "undefined" && self.setImmediate) ||
+	                       (typeof global !== "undefined" && global.setImmediate) ||
+	                       (this && this.setImmediate);
+	exports.clearImmediate = (typeof self !== "undefined" && self.clearImmediate) ||
+	                         (typeof global !== "undefined" && global.clearImmediate) ||
+	                         (this && this.clearImmediate);
 
+	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ }),
 /* 26 */
@@ -16140,25 +16151,22 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }
 
 	  HTMLJanitor.prototype.clean = function (html) {
-	    var sandbox = document.createElement('div');
-	    sandbox.innerHTML = html;
+	    const sandbox = document.implementation.createHTMLDocument();
+	    const root = sandbox.createElement("div");
+	    root.innerHTML = html;
 
-	    this._sanitize(sandbox);
+	    this._sanitize(sandbox, root);
 
-	    return sandbox.innerHTML;
+	    return root.innerHTML;
 	  };
 
-	  HTMLJanitor.prototype._sanitize = function (parentNode) {
-	    var treeWalker = createTreeWalker(parentNode);
+	  HTMLJanitor.prototype._sanitize = function (document, parentNode) {
+	    var treeWalker = createTreeWalker(document, parentNode);
 	    var node = treeWalker.firstChild();
+
 	    if (!node) { return; }
 
 	    do {
-	      // Ignore nodes that have already been sanitized
-	      if (node._sanitized) {
-	        continue;
-	      }
-
 	      if (node.nodeType === Node.TEXT_NODE) {
 	        // If this text node is just whitespace and the previous or next element
 	        // sibling is a block element, remove it
@@ -16169,7 +16177,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            && ((node.previousElementSibling && isBlockElement(node.previousElementSibling))
 	                 || (node.nextElementSibling && isBlockElement(node.nextElementSibling)))) {
 	          parentNode.removeChild(node);
-	          this._sanitize(parentNode);
+	          this._sanitize(document, parentNode);
 	          break;
 	        } else {
 	          continue;
@@ -16179,7 +16187,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      // Remove all comments
 	      if (node.nodeType === Node.COMMENT_NODE) {
 	        parentNode.removeChild(node);
-	        this._sanitize(parentNode);
+	        this._sanitize(document, parentNode);
 	        break;
 	      }
 
@@ -16215,7 +16223,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }
 	        parentNode.removeChild(node);
 
-	        this._sanitize(parentNode);
+	        this._sanitize(document, parentNode);
 	        break;
 	      }
 
@@ -16231,14 +16239,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	      }
 
 	      // Sanitize children
-	      this._sanitize(node);
+	      this._sanitize(document, node);
 
-	      // Mark node as sanitized so it's ignored in future runs
-	      node._sanitized = true;
 	    } while ((node = treeWalker.nextSibling()));
 	  };
 
-	  function createTreeWalker(node) {
+	  function createTreeWalker(document, node) {
 	    return document.createTreeWalker(node,
 	                                     NodeFilter.SHOW_TEXT | NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_COMMENT,
 	                                     null, false);
