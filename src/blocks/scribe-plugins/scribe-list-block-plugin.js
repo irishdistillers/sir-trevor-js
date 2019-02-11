@@ -1,5 +1,14 @@
 "use strict";
 
+var selectionRange = require('selection-range');
+
+var {
+  getTotalLength,
+  isAtStart,
+  isAtEnd,
+  selectToEnd
+} = require('./shared.js');
+
 var ScribeListBlockPlugin = function(block) {
   return function(scribe) {
     scribe.el.addEventListener('keydown', function(ev) {
@@ -15,44 +24,71 @@ var ScribeListBlockPlugin = function(block) {
         return div.innerHTML;
       };
 
-      var selectToEnd = function() {
-        var selection = new scribe.api.Selection();
-        var range = selection.range.cloneRange();
-        range.setEndAfter(scribe.el.lastChild, 0);
-
-        return range;
-      };
-
-      var currentPosition = function() {
-        var selection = new scribe.api.Selection();
-        return selection.range.startOffset;
-      };
-
       var content;
 
-      if (ev.keyCode === 13 && !ev.shiftKey) { // enter pressed
+      if (ev.key === "Enter" && !ev.shiftKey) {
         ev.preventDefault();
 
         if (scribe.getTextContent().length === 0) {
-          block.removeCurrentListItem();
-          block.mediator.trigger("block:create", 'Text', null, block.el, { autoFocus: true });
+          let nextListItem = block.nextListItem();
+          if (nextListItem) {
+            const data = {format: 'html', listItems: []};
+            block.removeCurrentListItem();
+            block.focusOn(nextListItem);
+            while (!!nextListItem) {
+              data.listItems.push({content: nextListItem.scribe.getContent()});
+              block.focusOn(nextListItem);
+              block.removeCurrentListItem();
+              nextListItem = block.nextListItem();
+            }
+            block.mediator.trigger("block:create", 'List', data, block.el, { autoFocus: true });
+            block.mediator.trigger("block:create", 'Text', null, block.el, { autoFocus: true });
+          } else {
+            block.removeCurrentListItem();
+            block.mediator.trigger("block:create", 'Text', null, block.el, { autoFocus: true });
+          }
         } else {
-          content = rangeToHTML(selectToEnd());
+          content = rangeToHTML(selectToEnd(scribe));
           block.addListItemAfterCurrent(content);
         }
-
-      } else if (ev.keyCode === 8 && currentPosition() === 0) {
+      } else if (["Left", "ArrowLeft", "Up", "ArrowUp"].indexOf(ev.key) > -1  && isAtStart(scribe)) {
         ev.preventDefault();
 
-        if (block.isLastListItem()) {
-          block.mediator.trigger('block:remove', block.blockID);
+        var previousListItem = block.previousListItem();
+        if (previousListItem) {
+          block.focusOn(previousListItem, { focusAtEnd: true });
         } else {
+          block.mediator.trigger("block:focusPrevious", block.blockID);
+        }
+
+      } else if (["Right", "ArrowRight", "Down", "ArrowDown"].indexOf(ev.key) > -1 && isAtEnd(scribe)) {
+        ev.preventDefault();
+
+        var nextListItem = block.nextListItem();
+        if (nextListItem) {
+          block.focusOn(nextListItem);
+        } else {
+          block.mediator.trigger("block:focusNext", block.blockID);
+        }
+
+      } else if (ev.key === "Backspace" && isAtStart(scribe)) {
+        ev.preventDefault();
+
+        if (block.previousListItem()) {
           content = scribe.getContent();
           block.removeCurrentListItem();
           block.appendToCurrentItem(content);
+        } else {
+          var data = {
+            format: 'html',
+            text: scribe.getContent()
+          };
+          block.removeCurrentListItem();
+          block.mediator.trigger("block:createBefore", 'Text', data, block, { autoFocus: true });
+          if (block.isLastListItem()) {
+            block.mediator.trigger('block:remove', block.blockID);
+          }
         }
-      } else if (ev.keyCode === 46) {
-        // TODO: Pressing del from end of list item
       }
     });
   };
