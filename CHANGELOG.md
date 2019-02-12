@@ -1,5 +1,30 @@
 # Changelog
 
+## 0.7.x
+
+### Future releases
+
+* Improve Firefox content pasting.
+* Improve edge content pasting.
+
+### 0.7.3
+
+* Preserve word list items when pasting.
+* Add basic support for IE11 / Edge.
+
+### 0.7.2
+
+* Improve navigation within list blocks.
+* Improve caret positioning on text blocks on removal.
+
+### 0.7.1
+
+* Reverted
+
+### 0.7.0
+
+* Upgrade to latest babel / webpack.
+
 ## 0.6.x
 
 ### 0.6.4

@@ -7,8 +7,10 @@ components/
 .grunt
 npm-debug.log
 website/.bundle/
+website/.tmp/
 website/bower_components/
 website/build/
 website/vendor/
-build/*.test.*
-build/*.debug.*
+build/**/*.debug.*
+build/**/*.test.*
+.vscode

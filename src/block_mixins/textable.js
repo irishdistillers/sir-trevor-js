@@ -53,15 +53,19 @@ module.exports = {
   appendContent: function(content, options) {
     options = options || {};
 
-    var caretPosition = this.getCaretPositionAtEnd();
+    this.focusAtEnd();
 
+    var caretPosition = this.getCaretPositionAtEnd();
     var currentContent = this.getScribeInnerContent();
+
     if (currentContent !== '') {
       content = currentContent + content;
     }
 
     if (content === '') {
-      content = '<br>';
+      if (!window.navigator.userAgent.match(/MSIE 10/)) {
+        content = '<br>';
+      }
     }
 
     this.setTextBlockHTML(content);
