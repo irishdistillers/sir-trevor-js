@@ -1,4 +1,4 @@
-sir-trevor-icons.svg.st-icon, .st-block-ui-btn__reorder, .st-block-ui-btn__delete, .st-block-control-ui-btn {
+.st-icon, .st-block-ui-btn__reorder, .st-block-ui-btn__delete, .st-block-control-ui-btn {
   cursor: pointer;
   width: 1em;
   height: 1em;
@@ -417,7 +417,7 @@ ul.st-text-block {
 
 .st-list-block__editor {
   width: 100%;
-  line-height: 1.8em; }
+  line-height: 1.45; }
 
 .st-block__inputs {
   padding: 1.6em 0 1em;
@@ -755,3 +755,4 @@ ul.st-text-block {
 
 .st-format-btn--Unlink {
   text-decoration: line-through; }
+

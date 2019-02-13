@@ -16,12 +16,12 @@ var BlockDeletion = require('./block-deletion');
 var BlockPositioner = require('./block-positioner');
 var EventBus = require('./event-bus');
 
-var Spinner = require('spin.js');
+var { Spinner } = require('spin.js');
 
 const DELETE_TEMPLATE = require("./templates/delete");
 const BLOCK_DESCRIPTION_TEMPLATE = require("./templates/block-description");
 
-var Block = function(data, instance_id, mediator, options) {
+var Block = function(data, instance_id, mediator, options, editorOptions) {
   SimpleBlock.apply(this, arguments);
 };
 
@@ -60,6 +60,7 @@ Object.assign(Block.prototype, SimpleBlock.fn, require('./block-validations'), {
   uploadable: false,
   fetchable: false,
   ajaxable: false,
+  mergeable: false,
   multi_editable: false,
   textable: false,
 
@@ -340,17 +341,19 @@ Object.assign(Block.prototype, SimpleBlock.fn, require('./block-validations'), {
    //Init functions for adding functionality
   _initUIComponents: function() {
 
-    this.addDeleteControls();
+    if (config.defaults.modifyBlocks) {
+      this.addDeleteControls();
 
-    this.positioner = new BlockPositioner(this.el, this.mediator);
+      this.positioner = new BlockPositioner(this.el, this.mediator);
 
-    this._withUIComponent(this.positioner, '.st-block-ui-btn__reorder',
-                          this.onPositionerClick);
+      this._withUIComponent(this.positioner, '.st-block-ui-btn__reorder',
+                            this.onPositionerClick);
 
-    this._withUIComponent(new BlockReorder(this.el, this.mediator));
+      this._withUIComponent(new BlockReorder(this.el, this.mediator));
 
-    this._withUIComponent(new BlockDeletion(), '.st-block-ui-btn__delete',
-                          this.onDeleteClick);
+      this._withUIComponent(new BlockDeletion(), '.st-block-ui-btn__delete',
+                            this.onDeleteClick);
+    }
 
     this.onFocus();
     this.onBlur();
@@ -450,7 +453,8 @@ Object.assign(Block.prototype, SimpleBlock.fn, require('./block-validations'), {
     }
 
     // Remove all empty nodes at the front to get blocks working.
-    while(this._scribe.el.firstChild && this._scribe.el.firstChild.textContent === '') {
+    // Don't remove nodes that can't contain text content (e.g. <input>)
+    while (this._scribe.el.firstChild && this._scribe.el.firstChild.textContent === '' && document.createElement(this._scribe.el.firstChild.tagName).outerHTML.indexOf("/") != -1) {
       this._scribe.el.removeChild(this._scribe.el.firstChild);
     }
 

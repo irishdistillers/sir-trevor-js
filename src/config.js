@@ -23,7 +23,7 @@ var upload_options = {
 };
 
 module.exports = {
-  debug: false,
+  debug: true,
   scribeDebug: false,
   skipValidation: false,
   version: "0.4.0",
@@ -32,6 +32,9 @@ module.exports = {
   instances: [],
 
   defaults: {
+    // If set to false will not allow users to add/remove or move blocks
+    modifyBlocks: true,
+
     defaultType: false,
     spinner: {
       className: 'st-spinner',
@@ -62,6 +65,7 @@ module.exports = {
     iconUrl: '../src/icons/sir-trevor-icons.svg',
     errorsContainer: undefined,
     convertFromMarkdown: true,
+    joinListBlocksOnBlockRemove: false,
     formatBar: {
       commands: [
         {
