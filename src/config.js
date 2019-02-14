@@ -23,7 +23,7 @@ var upload_options = {
 };
 
 module.exports = {
-  debug: true,
+  debug: false,
   scribeDebug: false,
   skipValidation: false,
   version: "0.4.0",
