@@ -6,7 +6,7 @@ var Block = require('../block');
 var stToHTML = require('../to-html');
 
 var ScribeListBlockPlugin = require('./scribe-plugins/scribe-list-block-plugin');
-var { getTotalLength } = require('./scribe-plugins/shared');
+var { getTotalLength, rangeToHTML, selectToEnd } = require('./scribe-plugins/shared');
 
 module.exports = Block.extend({
   type: 'list',
@@ -24,6 +24,14 @@ module.exports = Block.extend({
 
   configureScribe: function(scribe) {
     scribe.use(new ScribeListBlockPlugin(this));
+    scribe.on('content-changed', () => {
+      setTimeout(() => {
+        if (scribe.getHTML() === "") {
+          scribe.setHTML("<br>");
+        }
+
+      }, 0);
+    });
   },
 
   editorHTML: '<ul class="st-list-block__list"></ul>',
@@ -95,7 +103,8 @@ module.exports = Block.extend({
 
   addListItem: function(content, after) {
     content = content || '';
-    if (content.trim() === "<br>") { content = ''; }
+    content = content.trim();
+    if (content === "<br>") { content = ''; }
 
     var editor = this.newTextEditor(this.listItemEditorHTML, content);
 
@@ -160,6 +169,11 @@ module.exports = Block.extend({
     }
   },
 
+  focusAtStart: function() {
+    var editor = this.getTextEditor(this.editorIds[0]);
+    this.focusOn(editor);
+  },
+
   focusAtEnd: function() {
     var lastEditorId = this.editorIds[this.editorIds.length - 1];
     this.appendToTextEditor(lastEditorId);
@@ -204,6 +218,60 @@ module.exports = Block.extend({
       return this.getTextEditor(editorId);
     } else {
       return null;
+    }
+  },
+
+  asClipboardHTML: function() {
+    var data = this.getBlockData();
+    var listItems = data.listItems.map(item => {
+      return `<li>${item.content}</li>`;
+    }).join("\n");
+    return `<ul>${listItems}</ul>`;
+  },
+
+  splitCurrentEditor: function(scribe) {
+    if (scribe.getTextContent().length === 0) return false;
+
+    var content = rangeToHTML(selectToEnd(scribe));
+    this.addListItemAfterCurrent(content);
+    return true;
+  },
+
+  split: function() {
+    const currentEditor = this.getCurrentTextEditor();
+    if (!currentEditor) return;
+
+    var scribe = currentEditor.scribe;
+    if (this.splitCurrentEditor(scribe)) {
+      this.focusOnNeighbor();
+      this.addListItemAfterCurrent("");
+    }
+    this.splitListItem(this.getCurrentTextEditor().scribe);
+  },
+
+  splitListItem: function(scribe, options = {}) {
+    options = Object.assign({ createTextBlock: false }, options);
+
+    if (this.splitCurrentEditor(scribe)) return;
+
+    let nextListItem = this.nextListItem();
+    if (nextListItem) {
+      const data = { format: 'html', listItems: [] };
+      this.removeCurrentListItem();
+      this.focusOn(nextListItem);
+      while (!!nextListItem) {
+        data.listItems.push({content: nextListItem.scribe.getContent()});
+        this.focusOn(nextListItem);
+        this.removeCurrentListItem();
+        nextListItem = this.nextListItem();
+      }
+      this.mediator.trigger("block:create", 'List', data, this.el, { autoFocus: true });
+    } else {
+      this.removeCurrentListItem();
+    }
+
+    if (options.createTextBlock) {
+      this.mediator.trigger("block:create", 'Text', null, this.el, { autoFocus: true });
     }
   }
 });

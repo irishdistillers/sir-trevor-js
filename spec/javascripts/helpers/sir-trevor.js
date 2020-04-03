@@ -1,8 +1,6 @@
 "use strict";
 
 global.SirTrevor = require('../../../');
-global._ = require('lodash');
-
 
 global.createBaseElement = function() {
   var form = document.createElement("form");

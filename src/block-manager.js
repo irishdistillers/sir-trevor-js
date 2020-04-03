@@ -22,6 +22,7 @@ var BlockManager = function(SirTrevor) {
   }, {});
   this.instance_scope = SirTrevor.ID;
   this.mediator = SirTrevor.mediator;
+  this.editor = SirTrevor;
 
   // REFACTOR: this is a hack until I can focus on reworking the blockmanager
   this.wrapper = SirTrevor.wrapper;
@@ -49,12 +50,14 @@ Object.assign(BlockManager.prototype, require('./function-bind'), require('./med
     'rerender': 'rerenderBlock',
     'replace': 'replaceBlock',
     'focusPrevious': 'focusPreviousBlock',
-    'focusNext': 'focusNextBlock'
+    'focusNext': 'focusNextBlock',
+    'paste': 'paste'
   },
 
   initialize: function() {},
 
-  createBlock: function(type, data, previousSibling, options) {
+  createBlock: function(type, data, previousSibling, options = {}) {
+    options = Object.assign({ autoFocus: false, focusAtEnd: false }, options);
     type = utils.classify(type);
 
     // Run validations
@@ -67,8 +70,10 @@ Object.assign(BlockManager.prototype, require('./function-bind'), require('./med
     this._incrementBlockTypeCount(type);
     this.renderBlock(block, previousSibling);
 
-    if (options && options.autoFocus) {
+    if (options.autoFocus) {
       block.focus();
+    } else if (options.focusAtEnd) {
+      block.focusAtEnd();
     }
 
     this.triggerBlockCountUpdate();
@@ -79,7 +84,8 @@ Object.assign(BlockManager.prototype, require('./function-bind'), require('./med
     utils.log("Block created of type " + type);
   },
 
-  createBlockBefore: function(type, data, nextBlock, options) {
+  createBlockBefore: function(type, data, nextBlock, options = {}) {
+    options = Object.assign({ autoFocus: false, focusAtEnd: false }, options);
     type = utils.classify(type);
 
     // Run validations
@@ -98,8 +104,10 @@ Object.assign(BlockManager.prototype, require('./function-bind'), require('./med
       this.renderBlock(block, this.wrapper.querySelector(".st-top-controls"));
     }
 
-    if (options && options.autoFocus) {
+    if (options.autoFocus) {
       block.focus();
+    } else if (options.focusAtEnd) {
+      block.focusAtEnd();
     }
 
     this.triggerBlockCountUpdate();
@@ -113,7 +121,9 @@ Object.assign(BlockManager.prototype, require('./function-bind'), require('./med
   removeBlock: function(blockID, options) {
     options = Object.assign({
       transposeContent: false,
-      focusOnPrevious: false
+      focusOnPrevious: false,
+      focusOnNext: false,
+      createNextBlock: false
     }, options);
 
     var block = this.findBlockById(blockID);
@@ -182,6 +192,14 @@ Object.assign(BlockManager.prototype, require('./function-bind'), require('./med
       previousBlock.focusAtEnd();
     }
 
+    if (options.focusOnNext) {
+      if (nextBlock) {
+        nextBlock.focus();
+      } else if (options.createNextBlock) {
+        this.createBlock("text", null, null, { autoFocus: true });
+      }
+    }
+
     this._decrementBlockTypeCount(type);
     this.triggerBlockCountUpdate();
     this.mediator.trigger('block:limitReached', this.blockLimitReached());
@@ -199,12 +217,30 @@ Object.assign(BlockManager.prototype, require('./function-bind'), require('./med
   renderBlock: function(block, previousSibling) {
     // REFACTOR: this will have to do until we're able to address
     // the block manager
+
+    var blockElement = block.render().el;
+
     if (previousSibling) {
-      Dom.insertAfter(block.render().el, previousSibling);
+      Dom.insertAfter(blockElement, previousSibling);
     } else {
-      this.wrapper.appendChild(block.render().el);
+      this.wrapper.appendChild(blockElement);
     }
     block.trigger("onRender");
+
+    if (this.options.selectionMouse) {
+      blockElement.addEventListener("mouseenter", () => {
+        if (!this.editor.mouseDown) return;
+
+        var blockPosition = this.getBlockPosition(block.el);
+        this.mediator.trigger("selection:update", blockPosition);
+      });
+
+      blockElement.addEventListener("mousedown", (ev) => {
+        var blockPosition = this.getBlockPosition(block.el);
+        var options = { mouseEnabled: true, expand: ev.shiftKey || ev.metaKey };
+        this.mediator.trigger("selection:start", blockPosition, options);
+      });
+    }
   },
 
   rerenderBlock: function(blockID) {
@@ -236,28 +272,61 @@ Object.assign(BlockManager.prototype, require('./function-bind'), require('./med
     return Array.prototype.indexOf.call(this.wrapper.querySelectorAll('.st-block'), block);
   },
 
-  focusPreviousBlock: function(blockID) {
+  focusPreviousBlock: function(blockID, options = {}) {
+    options = Object.assign({ force: false }, options);
+
     var block = this.findBlockById(blockID);
 
-    if (block.mergeable) {
+    if (block && (block.mergeable || options.force)) {
       var previousBlock = this.getPreviousBlock(block);
 
       if (previousBlock && previousBlock.mergeable) {
         previousBlock.focusAtEnd();
+      } else if (options.force) {
+        block.focus();
       }
     }
   },
 
-  focusNextBlock: function(blockID) {
+  focusNextBlock: function(blockID, options = {}) {
+    options = Object.assign({ force: false }, options);
+
     var block = this.findBlockById(blockID);
 
-    if (block && block.mergeable) {
+    if (block && (block.mergeable || options.force)) {
       var nextBlock = this.getNextBlock(block);
 
       if (nextBlock && nextBlock.mergeable) {
-        nextBlock.focus();
+        nextBlock.focusAtStart();
+      } else if (options.force) {
+        block.focusAtEnd();
       }
     }
+  },
+
+  paste: function(blocks) {
+    var currentBlock = utils.getBlockBySelection();
+
+    if (currentBlock) {
+      currentBlock.split();
+
+      var nextBlock = this.getNextBlock(currentBlock);
+
+      if (currentBlock.isEmpty()) {
+        this.removeBlock(currentBlock.blockID);
+      }
+
+      if (nextBlock) {
+        blocks.forEach((block) => {
+          this.createBlockBefore(block.type, block.data, nextBlock, { focusAtEnd: true });
+        });
+        return;
+      }
+    }
+
+    blocks.forEach((block) => {
+      this.createBlock(block.type, block.data, undefined, { focusAtEnd: true });
+    });
   },
 
   triggerBlockCountUpdate: function() {

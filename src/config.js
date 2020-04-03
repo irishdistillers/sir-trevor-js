@@ -89,6 +89,7 @@ module.exports = {
           title: "link",
           iconName: "fmt-link",
           cmd: "linkPrompt",
+          keyCode: 75,
           text : "link",
         },
         {
@@ -118,5 +119,10 @@ module.exports = {
       headers: {}
     },
     focusOnInit: true,
+    selectionMouse: true,
+    selectionCopy: true,
+    selectionCut: true,
+    selectionPaste: true,
+    selectionLimitToEditor: true
   }
 };

@@ -23,6 +23,8 @@ var BlockManager = require('./block-manager');
 var FormatBar = require('./format-bar');
 var EditorStore = require('./extensions/editor-store');
 var ErrorHandler = require('./error-handler');
+var BlockPositionerSelect = require('./block-positioner-select');
+var SelectionHandler = require('./selection-handler');
 
 var Editor = function(options) {
   this.initialize(options);
@@ -31,7 +33,9 @@ var Editor = function(options) {
 Object.assign(Editor.prototype, require('./function-bind'), require('./events'), {
 
   bound: ['onFormSubmit', 'hideAllTheThings', 'changeBlockPosition',
-    'removeBlockDragOver', 'blockLimitReached', 'blockOrderUpdated'],
+    'removeBlockDragOver',
+    'blockLimitReached', 'blockOrderUpdated', 'onBlockCountChange',
+    'renderBlockPositionerSelect'],
 
   events: {
     'block:reorder:dragend': 'removeBlockDragOver',
@@ -80,7 +84,8 @@ Object.assign(Editor.prototype, require('./function-bind'), require('./events'),
     this.blockAddition = BlockAddition.create(this);
     this.BlockAdditionTop = BlockAdditionTop.create(this);
     this.blockControls = BlockControls.create(this);
-
+    this.blockPositionerSelect = new BlockPositionerSelect(this.mediator);
+    this.selectionHandler = new SelectionHandler(this.outer, this.mediator, this);
     this.formatBar = new FormatBar(this.options.formatBar, this.mediator, this);
 
     this.mediator.on('block:changePosition', this.changeBlockPosition);
@@ -91,6 +96,8 @@ Object.assign(Editor.prototype, require('./function-bind'), require('./events'),
     this.mediator.on('block:create', this.blockOrderUpdated);
     this.mediator.on('block:remove', this.blockOrderUpdated);
     this.mediator.on('block:replace', this.blockOrderUpdated);
+    this.mediator.on("block:countUpdate", this.onBlockCountChange);
+    this.mediator.on("block-positioner-select:render", this.renderBlockPositionerSelect);
 
     this.dataStore = "Please use store.retrieve();";
 
@@ -117,14 +124,14 @@ Object.assign(Editor.prototype, require('./function-bind'), require('./events'),
       }, this);
     } else if (this.options.defaultType !== false) {
       this.mediator.trigger('block:create', this.options.defaultType, {});
+    }
 
-      if (this.options.focusOnInit) {
-        var blockElement = this.wrapper.querySelectorAll('.st-block')[0];
+    if (this.options.focusOnInit) {
+      var blockElement = this.wrapper.querySelectorAll('.st-block')[0];
 
-        if (blockElement) {
-          var block = this.blockManager.findBlockById(blockElement.getAttribute('id'));
-          block.focus();
-        }
+      if (blockElement) {
+        var block = this.blockManager.findBlockById(blockElement.getAttribute('id'));
+        block.focus();
       }
     }
   },
@@ -194,6 +201,14 @@ Object.assign(Editor.prototype, require('./function-bind'), require('./events'),
 
   _toggleHideTopControls: function(toggle) {
     this.wrapper.classList.toggle('st--hide-top-controls', toggle);
+  },
+
+  onBlockCountChange: function(new_count) {
+    this.blockPositionerSelect.onBlockCountChange(new_count);
+  },
+
+  renderBlockPositionerSelect: function(positioner) {
+    this.blockPositionerSelect.renderInBlock(positioner);
   },
 
   _setEvents: function() {
@@ -335,6 +350,12 @@ Object.assign(Editor.prototype, require('./function-bind'), require('./events'),
     return this.blockManager.getBlockPosition(block);
   },
 
+  getBlocks: function() {
+    return [].map.call(this.wrapper.querySelectorAll('.st-block'), (blockEl) => {
+      return this.findBlockById(blockEl.getAttribute('id'));
+    });
+  },
+
   /*
    * Set all dom elements required for the editor.
    */
@@ -364,7 +385,6 @@ Object.assign(Editor.prototype, require('./function-bind'), require('./events'),
 
     return true;
   }
-
 });
 
 module.exports = Editor;
